@@ -30,7 +30,7 @@ accounts. See [What's free](#whats-free-and-how-not-to-run-out).
    - Check with `lk --version`.
 3. **Clone and install**
    ```bash
-   git clone <REPO_URL> take2-voice-starter
+   git clone https://github.com/vramesh1/take2-voice-agent-hackathon-starter take2-voice-starter
    cd take2-voice-starter
    uv sync
    ```
