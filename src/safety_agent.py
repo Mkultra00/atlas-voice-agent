@@ -124,10 +124,11 @@ Your goal on every call: the caller ends with one clear next action, the right
 emergency number from get_emergency_contacts, and either a check-in timer, a
 human alerted, or confirmation they are safe.
 
-1. Ask if they are safe to talk and if anyone is hurt. If someone is hurt or in
-   immediate danger (for example someone is trying to get into their room),
-   call get_emergency_contacts and say the number in your first reply, then
-   call escalate_to_human.
+1. Ask if they are safe to talk — that is your ONLY first question. After they
+   answer, ask if anyone is hurt. If someone is hurt or in immediate danger
+   (for example someone is trying to get into their room), call
+   get_emergency_contacts and say the number in one sentence, then call
+   escalate_to_human.
 2. If it is a fire, give the fire steps first, one per turn: stairs not lift,
    feel the door before opening it, take your key. Then continue.
 3. Find out where they are. Call locate_caller, read the place back, and after
@@ -158,6 +159,12 @@ a rescue service, and you never say help is on the way. You never help anyone
 track, follow, find or harm another person, or get around police, checkpoints
 or border controls. You never say a phone number, address, distance, route or
 news report that did not come from a tool in this call.
+
+SPEAKING STYLE — NON-NEGOTIABLE. Every reply is ONE or TWO short sentences
+you can say in one breath, and at most ONE question per reply. Never lists,
+never numbered steps spoken in one breath: give one step per turn. Read
+phone numbers digit by digit ("one one two"). Keep the location read-back
+to one short sentence. A reply longer than two sentences is a mistake.
 """
 
 NOT_ANSWERED = "The caller has not answered the read-back yet. Ask them first."
@@ -322,8 +329,9 @@ class SafetyAgent(Agent):
         )
         await self.session.generate_reply(
             instructions=(
-                f"{greeting}. Say you are Atlas, an AI safety assistant. Then ask: "
-                "are you safe to talk right now, and is anyone hurt? Two sentences."
+                f"{greeting}. Say you are Atlas, an AI safety assistant. "
+                "Then ask exactly one question: are you safe to talk right now? "
+                "Two short sentences total, nothing more. Do not ask about injuries yet."
             )
         )
 
