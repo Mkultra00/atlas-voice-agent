@@ -86,14 +86,10 @@ document.querySelectorAll('.keypad button').forEach(b=>b.addEventListener('click
   if(k==='2'){ me('2'); agent('Noted. Tell me what changed and I\u2019ll re-check.'); return; }
 }));
 
-/* ---------- call button: simulated telephony theater ---------- */
+/* ---------- call button: plain connection, no phone simulation ---------- */
 $('callBtn').addEventListener('click',async()=>{
   if(connected){ try{ if(room) await room.disconnect(); }catch{} telephony.endAll(); dialed=false; connected=false; setCallBtn('idle'); setPill('demo'); return; }
   setCallBtn('connecting');
-  /* grab the mic NOW, inside the click gesture — Chrome's permission prompt
-     needs fresh user activation; a request several awaits later gets silently denied */
-  let micStream=null; try{ micStream=await telephony.grabMic(); }catch(e){ micStream=null; }
-  await telephony.dialSequence();     /* dial tone → DTMF → ring → pickup */
   dialed=true; awaiting=null;
   chat.innerHTML='';
   if(ROOM&&TOKEN&&WSS){
@@ -101,14 +97,11 @@ $('callBtn').addEventListener('click',async()=>{
     try{
       room=new LivekitClient.Room({audioCaptureDefaults:{noiseSuppression:true}});
       room.on('disconnected',()=>{ setPill('drop'); evt('CALL DROPPED — ATLAS FIRED INSTANT DUTY-DESK ALERT',false); setCallBtn('idle'); connected=false; live=false; dialed=false; telephony.endAll(); });
-      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); telephony.telcoBypassable(a); } });
+      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); try{ a.volume=1.0; const p=a.play&&a.play(); if(p&&p.catch)p.catch(()=>{}); }catch(e){} } });
       await room.connect(WSS,TOKEN);
       setPill('live'); setCallBtn('end');
       telephony.timer(t=>{ $('connPill').textContent=t; });
-      /* caller's voice → narrowband telco (300–3400 Hz) before publishing */
-      const telcoMicOk=await telephony.telcoMic(room,micStream);
-      if(telcoMicOk) setTimeout(()=>evt('PHONE LINE LIVE — SPEAK TO ATLAS',true),400);
-      else { try{ await room.localParticipant.setMicrophoneEnabled(true); setTimeout(()=>evt('MIC LIVE — SPEAK TO ATLAS',true),400); }catch(e){ evt('MIC BLOCKED — ALLOW MICROPHONE IN TAB',false); } }
+      setTimeout(async()=>{ try{ await room.localParticipant.setMicrophoneEnabled(true); evt('MIC LIVE — SPEAK TO ATLAS',true); }catch(e){ evt('MIC BLOCKED — ALLOW MICROPHONE IN TAB',false); } },400);
     }catch(e){ live=false; setPill('demo'); setCallBtn('end'); evt('LIVE WIRE FAILED — FELL BACK TO DEMO MODE'); startScript(); }
   } else { connected=true; live=false; setPill('demo'); setCallBtn('end'); startScript(); }
 });

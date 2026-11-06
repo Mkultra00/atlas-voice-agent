@@ -377,27 +377,30 @@ class SafetyAgent(Agent):
             quiet_mode=self.state.quiet_mode,
             seen=seen,
         )
+        logger.info("llm_node_active")  # probe: proves dispatch reaches the override
         async for item in node:
+            # ChatChunk (pydantic) carries text in delta.content — NOT item.text.
             if isinstance(item, str):
                 piece = guard.feed(item)
                 if piece:
                     yield piece
                 continue
-            text = getattr(item, "text", None)
-            if isinstance(text, str) and text:
-                piece = guard.feed(text)
-                if piece:
-                    try:
-                        item = replace(item, text=piece)
-                    except Exception:
-                        item.text = piece
-                has_calls = bool(
-                    getattr(item, "delta", None) and getattr(item.delta, "tool_calls", None)
-                )
-                if piece or has_calls:
+            delta = getattr(item, "delta", None)
+            content = getattr(delta, "content", None) if delta is not None else None
+            has_calls = bool(
+                getattr(delta, "tool_calls", None) if delta is not None else None
+            )
+            if has_calls or not (isinstance(content, str) and content):
+                yield item  # tool calls, sentinels, empty/metadata chunks
+                continue
+            piece = guard.feed(content)
+            if piece:
+                try:
+                    delta.content = piece
                     yield item
-            else:
-                yield item
+                except Exception:
+                    yield piece  # str chunk fallback; generation accepts both
+            # else: sentence dropped by the guard — do not forward this chunk
         tail = guard.finalize()
         if tail:
             yield tail
