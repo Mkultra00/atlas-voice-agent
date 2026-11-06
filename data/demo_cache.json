@@ -1,0 +1,1117 @@
+{
+ "_note": "Static offline fallback for the Paris riots demo (TDD 4.x). Every entry says where it came from. 'live' = saved from a real API response on 2026-11-06; HAND-FILLED and demo_data entries are flagged. Never treat demo_data news as real.",
+ "anchor": {
+  "label": "Boulevard de Magenta, Quartier Saint-Vincent-de-Paul, Paris 10e Arrondissement, Paris",
+  "lat": 48.8769487,
+  "lon": 2.3554685
+ },
+ "geocode": {
+  "boulevard de magenta": {
+   "label": "Boulevard de Magenta, Quartier Saint-Vincent-de-Paul, Paris 10e Arrondissement, Paris",
+   "lat": 48.8769487,
+   "lon": 2.3554685,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "live nominatim 2026-11-06, query 'Boulevard de Magenta, Paris' (the stretch by Gare du Nord / Gare de l'Est)"
+  },
+  "gare du nord": {
+   "label": "Gare du Nord (Métro), Rue du Faubourg Saint-Denis, Paris 10e Arrondissement, Paris",
+   "lat": 48.8795666,
+   "lon": 2.3572124,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "live nominatim 2026-11-06"
+  },
+  "hopital lariboisiere": {
+   "label": "Hôpital Lariboisière, Rue de Maubeuge, Paris 10e Arrondissement, Paris",
+   "lat": 48.8829453,
+   "lon": 2.3530696,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "live nominatim 2026-11-06"
+  },
+  "us embassy paris": {
+   "label": "2 Avenue Gabriel, Paris 8e Arrondissement, Paris",
+   "lat": 48.86738,
+   "lon": 2.3203593,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "live nominatim 2026-11-06"
+  },
+  "commissariat 10e": {
+   "label": "Commissariat de police de Paris 10e arrondissement, Rue Louis Blanc, Paris 10e Arrondissement, Paris",
+   "lat": 48.8808608,
+   "lon": 2.366294,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "live nominatim 2026-11-06"
+  },
+  "hotel le nord": {
+   "label": "Hotel Le Nord, Boulevard de Magenta, Paris 10e Arrondissement, Paris",
+   "lat": 48.8769487,
+   "lon": 2.3554685,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "HAND-FILLED: fictional demo hotel from data/travelers.json (Nominatim returns nothing for it). Placed at the live Boulevard de Magenta coords above."
+  },
+  "ambassade des etats unis": {
+   "label": "US Embassy, 2 Avenue Gabriel, Paris 8e Arrondissement, Paris",
+   "lat": 48.86738,
+   "lon": 2.3203593,
+   "country_code": "FR",
+   "city": "Paris",
+   "_source": "live nominatim 2026-11-06"
+  }
+ },
+ "nearby": {
+  "_source": "live overpass-api.de 2026-11-06, 2 km around the anchor (embassy: country=US within 10 km). distance/direction are recomputed from the caller at runtime.",
+  "police": [
+   {
+    "name": "Police nationale",
+    "lat": 48.8768355,
+    "lon": 2.3527879,
+    "country": "",
+    "emergency": ""
+   },
+   {
+    "name": "Police nationale",
+    "lat": 48.8767282,
+    "lon": 2.3605791,
+    "country": "",
+    "emergency": ""
+   },
+   {
+    "name": "Police nationale",
+    "lat": 48.8803535,
+    "lon": 2.3569996,
+    "country": "",
+    "emergency": ""
+   },
+   {
+    "name": "Commissariat de police de Paris 10e arrondissement",
+    "lat": 48.8808624,
+    "lon": 2.3661835,
+    "country": "",
+    "emergency": ""
+   }
+  ],
+  "hospital": [
+   {
+    "name": "Hôpital Lariboisière",
+    "lat": 48.8829019,
+    "lon": 2.3533116,
+    "country": "",
+    "emergency": "yes"
+   },
+   {
+    "name": "Hôpital Saint-Louis",
+    "lat": 48.8738281,
+    "lon": 2.3676232,
+    "country": "",
+    "emergency": "yes"
+   },
+   {
+    "name": "Fondation ophtalmologique Adolphe de Rothschild",
+    "lat": 48.8782542,
+    "lon": 2.3776344,
+    "country": "",
+    "emergency": "yes"
+   },
+   {
+    "name": "Les Cariatides d'Abbeville",
+    "lat": 48.8785401,
+    "lon": 2.3503089,
+    "country": "",
+    "emergency": ""
+   }
+  ],
+  "embassy": [
+   {
+    "name": "Ambassade des États-Unis",
+    "lat": 48.8677416,
+    "lon": 2.3203787,
+    "country": "US",
+    "emergency": ""
+   }
+  ],
+  "hotel": [
+   {
+    "name": "Hôtel Midnight",
+    "lat": 48.8773449,
+    "lon": 2.3560207,
+    "country": "",
+    "emergency": ""
+   },
+   {
+    "name": "Lucien & Marinette",
+    "lat": 48.8764718,
+    "lon": 2.3548963,
+    "country": "",
+    "emergency": ""
+   },
+   {
+    "name": "Mademoiselle",
+    "lat": 48.8772727,
+    "lon": 2.3543165,
+    "country": "",
+    "emergency": ""
+   },
+   {
+    "name": "Léna",
+    "lat": 48.8777655,
+    "lon": 2.355012,
+    "country": "",
+    "emergency": ""
+   }
+  ]
+ },
+ "routes": {
+  "_source": "live OSRM 2026-11-06 from the anchor: walk = routing.openstreetmap.de/routed-foot, drive = routed-car. Used only when the caller is within 500 m of the anchor.",
+  "commissariat de police de paris 10e arrondissement": {
+   "walk": {
+    "distance_m": 1072.0,
+    "duration_s": 857.5,
+    "steps": [
+     {
+      "name": "Boulevard de Magenta",
+      "distance": 49,
+      "maneuver": {
+       "type": "depart",
+       "bearing_after": 329
+      }
+     },
+     {
+      "name": "Rue de Saint-Quentin",
+      "distance": 12.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 53
+      }
+     },
+     {
+      "name": "",
+      "distance": 7.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 334
+      }
+     },
+     {
+      "name": "",
+      "distance": 4.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 67
+      }
+     },
+     {
+      "name": "",
+      "distance": 79.5,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 8
+      }
+     },
+     {
+      "name": "",
+      "distance": 78.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 2
+      }
+     },
+     {
+      "name": "",
+      "distance": 497.8,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 70
+      }
+     },
+     {
+      "name": "",
+      "distance": 3.8,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 133
+      }
+     },
+     {
+      "name": "",
+      "distance": 7.9,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 74
+      }
+     },
+     {
+      "name": "",
+      "distance": 216.5,
+      "maneuver": {
+       "type": "fork",
+       "modifier": "slight right",
+       "bearing_after": 42
+      }
+     },
+     {
+      "name": "",
+      "distance": 13.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 67
+      }
+     },
+     {
+      "name": "",
+      "distance": 100.2,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 139
+      }
+     },
+     {
+      "name": "",
+      "distance": 0,
+      "maneuver": {
+       "type": "arrive",
+       "modifier": "left",
+       "bearing_after": 0
+      }
+     }
+    ],
+    "_source": "live https://routing.openstreetmap.de/routed-foot 2026-11-06"
+   },
+   "drive": {
+    "distance_m": 2015.3,
+    "duration_s": 340.7,
+    "steps": [
+     {
+      "name": "Boulevard de Magenta",
+      "distance": 201.7,
+      "maneuver": {
+       "type": "depart",
+       "bearing_after": 329
+      }
+     },
+     {
+      "name": "Rue La Fayette",
+      "distance": 1246.7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 68
+      }
+     },
+     {
+      "name": "Boulevard de la Villette",
+      "distance": 84,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 158
+      }
+     },
+     {
+      "name": "",
+      "distance": 271.5,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 222
+      }
+     },
+     {
+      "name": "",
+      "distance": 34.2,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 226
+      }
+     },
+     {
+      "name": "Rue Louis Blanc",
+      "distance": 177.3,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 312
+      }
+     },
+     {
+      "name": "Rue Louis Blanc",
+      "distance": 0,
+      "maneuver": {
+       "type": "arrive",
+       "modifier": "right",
+       "bearing_after": 0
+      }
+     }
+    ],
+    "_source": "live https://routing.openstreetmap.de/routed-car 2026-11-06"
+   }
+  },
+  "hopital lariboisiere": {
+   "walk": {
+    "distance_m": 789.5,
+    "duration_s": 632.0,
+    "steps": [
+     {
+      "name": "Boulevard de Magenta",
+      "distance": 49,
+      "maneuver": {
+       "type": "depart",
+       "bearing_after": 329
+      }
+     },
+     {
+      "name": "Rue de Saint-Quentin",
+      "distance": 12.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 53
+      }
+     },
+     {
+      "name": "",
+      "distance": 134.5,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 334
+      }
+     },
+     {
+      "name": "",
+      "distance": 10.7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 11
+      }
+     },
+     {
+      "name": "",
+      "distance": 17.2,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 341
+      }
+     },
+     {
+      "name": "",
+      "distance": 24.9,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 305
+      }
+     },
+     {
+      "name": "",
+      "distance": 87.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 327
+      }
+     },
+     {
+      "name": "",
+      "distance": 91.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 23
+      }
+     },
+     {
+      "name": "Place Napoléon III",
+      "distance": 13.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 295
+      }
+     },
+     {
+      "name": "Rue de Compiègne",
+      "distance": 152.6,
+      "maneuver": {
+       "type": "new name",
+       "modifier": "straight",
+       "bearing_after": 285
+      }
+     },
+     {
+      "name": "",
+      "distance": 5.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 45
+      }
+     },
+     {
+      "name": "",
+      "distance": 29.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 67
+      }
+     },
+     {
+      "name": "Rue de Maubeuge",
+      "distance": 8.6,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 26
+      }
+     },
+     {
+      "name": "",
+      "distance": 4.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 274
+      }
+     },
+     {
+      "name": "",
+      "distance": 46.3,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 19
+      }
+     },
+     {
+      "name": "",
+      "distance": 54.9,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 278
+      }
+     },
+     {
+      "name": "",
+      "distance": 45.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 279
+      }
+     },
+     {
+      "name": "",
+      "distance": 0,
+      "maneuver": {
+       "type": "arrive",
+       "modifier": "right",
+       "bearing_after": 0
+      }
+     }
+    ],
+    "_source": "live https://routing.openstreetmap.de/routed-foot 2026-11-06"
+   },
+   "drive": {
+    "distance_m": 1548.5,
+    "duration_s": 287.7,
+    "steps": [
+     {
+      "name": "Boulevard de Magenta",
+      "distance": 457.7,
+      "maneuver": {
+       "type": "depart",
+       "bearing_after": 329
+      }
+     },
+     {
+      "name": "Rue Saint-Vincent de Paul",
+      "distance": 8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 350
+      }
+     },
+     {
+      "name": "Rue Saint-Vincent de Paul",
+      "distance": 155.2,
+      "maneuver": {
+       "type": "continue",
+       "modifier": "right",
+       "bearing_after": 32
+      }
+     },
+     {
+      "name": "Rue Ambroise Paré",
+      "distance": 108.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 279
+      }
+     },
+     {
+      "name": "Rue Guy Patin",
+      "distance": 188.6,
+      "maneuver": {
+       "type": "new name",
+       "modifier": "straight",
+       "bearing_after": 292
+      }
+     },
+     {
+      "name": "Boulevard de la Chapelle",
+      "distance": 312.1,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 82
+      }
+     },
+     {
+      "name": "Rue de Maubeuge",
+      "distance": 213.2,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 178
+      }
+     },
+     {
+      "name": "",
+      "distance": 59.9,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 278
+      }
+     },
+     {
+      "name": "",
+      "distance": 45.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 279
+      }
+     },
+     {
+      "name": "",
+      "distance": 0,
+      "maneuver": {
+       "type": "arrive",
+       "modifier": "right",
+       "bearing_after": 0
+      }
+     }
+    ],
+    "_source": "live https://routing.openstreetmap.de/routed-car 2026-11-06"
+   }
+  },
+  "ambassade des etats unis": {
+   "walk": {
+    "distance_m": 3138.6,
+    "duration_s": 2510.2,
+    "steps": [
+     {
+      "name": "Boulevard de Magenta",
+      "distance": 49,
+      "maneuver": {
+       "type": "depart",
+       "bearing_after": 329
+      }
+     },
+     {
+      "name": "Rue des Petits Hôtels",
+      "distance": 12.5,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 241
+      }
+     },
+     {
+      "name": "",
+      "distance": 11.9,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 315
+      }
+     },
+     {
+      "name": "",
+      "distance": 233.3,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 260
+      }
+     },
+     {
+      "name": "",
+      "distance": 16.4,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "left",
+       "bearing_after": 247
+      }
+     },
+     {
+      "name": "",
+      "distance": 135.9,
+      "maneuver": {
+       "type": "fork",
+       "modifier": "slight left",
+       "bearing_after": 247
+      }
+     },
+     {
+      "name": "",
+      "distance": 10.4,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "left",
+       "bearing_after": 194
+      }
+     },
+     {
+      "name": "",
+      "distance": 74.2,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 279
+      }
+     },
+     {
+      "name": "",
+      "distance": 11.1,
+      "maneuver": {
+       "type": "fork",
+       "modifier": "slight right",
+       "bearing_after": 248
+      }
+     },
+     {
+      "name": "",
+      "distance": 4.6,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 331
+      }
+     },
+     {
+      "name": "",
+      "distance": 157.7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 246
+      }
+     },
+     {
+      "name": "",
+      "distance": 5.3,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "left",
+       "bearing_after": 198
+      }
+     },
+     {
+      "name": "",
+      "distance": 103.2,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 258
+      }
+     },
+     {
+      "name": "",
+      "distance": 368.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 247
+      }
+     },
+     {
+      "name": "",
+      "distance": 3.1,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 282
+      }
+     },
+     {
+      "name": "",
+      "distance": 572.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 247
+      }
+     },
+     {
+      "name": "",
+      "distance": 34.9,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "left",
+       "bearing_after": 182
+      }
+     },
+     {
+      "name": "",
+      "distance": 26.7,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 253
+      }
+     },
+     {
+      "name": "",
+      "distance": 74.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 185
+      }
+     },
+     {
+      "name": "",
+      "distance": 23.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 225
+      }
+     },
+     {
+      "name": "",
+      "distance": 128.4,
+      "maneuver": {
+       "type": "new name",
+       "modifier": "straight",
+       "bearing_after": 270
+      }
+     },
+     {
+      "name": "",
+      "distance": 345.5,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 254
+      }
+     },
+     {
+      "name": "",
+      "distance": 37.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 261
+      }
+     },
+     {
+      "name": "",
+      "distance": 9.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 305
+      }
+     },
+     {
+      "name": "",
+      "distance": 67.5,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 254
+      }
+     },
+     {
+      "name": "",
+      "distance": 7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 194
+      }
+     },
+     {
+      "name": "",
+      "distance": 8.7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 234
+      }
+     },
+     {
+      "name": "",
+      "distance": 98.3,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 270
+      }
+     },
+     {
+      "name": "Place de la Madeleine",
+      "distance": 22.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 234
+      }
+     },
+     {
+      "name": "Place de la Madeleine",
+      "distance": 26.1,
+      "maneuver": {
+       "type": "continue",
+       "modifier": "right",
+       "bearing_after": 260
+      }
+     },
+     {
+      "name": "",
+      "distance": 74.1,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "sharp left",
+       "bearing_after": 208
+      }
+     },
+     {
+      "name": "",
+      "distance": 32,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 213
+      }
+     },
+     {
+      "name": "",
+      "distance": 95.1,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 192
+      }
+     },
+     {
+      "name": "",
+      "distance": 90.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 285
+      }
+     },
+     {
+      "name": "",
+      "distance": 17.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 203
+      }
+     },
+     {
+      "name": "",
+      "distance": 8.7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight right",
+       "bearing_after": 282
+      }
+     },
+     {
+      "name": "",
+      "distance": 139.8,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "left",
+       "bearing_after": 209
+      }
+     },
+     {
+      "name": "",
+      "distance": 0,
+      "maneuver": {
+       "type": "arrive",
+       "modifier": "right",
+       "bearing_after": 0
+      }
+     }
+    ],
+    "_source": "live https://routing.openstreetmap.de/routed-foot 2026-11-06"
+   },
+   "drive": {
+    "distance_m": 3450.7,
+    "duration_s": 580.8,
+    "steps": [
+     {
+      "name": "Boulevard de Magenta",
+      "distance": 49,
+      "maneuver": {
+       "type": "depart",
+       "bearing_after": 329
+      }
+     },
+     {
+      "name": "Rue des Petits Hôtels",
+      "distance": 315.7,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 241
+      }
+     },
+     {
+      "name": "Rue d'Abbeville",
+      "distance": 242.8,
+      "maneuver": {
+       "type": "new name",
+       "modifier": "straight",
+       "bearing_after": 313
+      }
+     },
+     {
+      "name": "Rue de Maubeuge",
+      "distance": 751.6,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "slight left",
+       "bearing_after": 244
+      }
+     },
+     {
+      "name": "Rue Le Peletier",
+      "distance": 490.3,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 194
+      }
+     },
+     {
+      "name": "Boulevard des Italiens",
+      "distance": 296.3,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 254
+      }
+     },
+     {
+      "name": "Boulevard des Capucines",
+      "distance": 467.8,
+      "maneuver": {
+       "type": "new name",
+       "modifier": "straight",
+       "bearing_after": 254
+      }
+     },
+     {
+      "name": "Rue Cambon",
+      "distance": 490.8,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "left",
+       "bearing_after": 136
+      }
+     },
+     {
+      "name": "Rue de Rivoli",
+      "distance": 153,
+      "maneuver": {
+       "type": "end of road",
+       "modifier": "right",
+       "bearing_after": 295
+      }
+     },
+     {
+      "name": "Place de la Concorde",
+      "distance": 193.4,
+      "maneuver": {
+       "type": "turn",
+       "modifier": "right",
+       "bearing_after": 293
+      }
+     },
+     {
+      "name": "Place de la Concorde",
+      "distance": 0,
+      "maneuver": {
+       "type": "arrive",
+       "modifier": "straight",
+       "bearing_after": 0
+      }
+     }
+    ],
+    "_source": "live https://routing.openstreetmap.de/routed-car 2026-11-06"
+   }
+  }
+ },
+ "news": [
+  {
+   "keywords": [
+    "protest",
+    "riot",
+    "riots",
+    "unrest",
+    "march",
+    "demonstration",
+    "magenta",
+    "nord",
+    "republique",
+    "paris"
+   ],
+   "text": "Unconfirmed reports say a large demonstration near Place de la Republique has turned into clashes, with some groups moving north along Boulevard de Magenta toward Gare du Nord. Police have closed several streets.",
+   "demo_data": true,
+   "_note": "PLACEHOLDER written for the demo story, not a real report. Spoken only when ATLAS_DEMO_NEWS=1."
+  },
+  {
+   "keywords": [
+    "fire",
+    "smoke",
+    "strike",
+    "metro",
+    "transport"
+   ],
+   "text": "Unconfirmed reports say metro lines near Gare du Nord are disrupted tonight.",
+   "demo_data": true,
+   "_note": "PLACEHOLDER, not a real report. Spoken only when ATLAS_DEMO_NEWS=1."
+  }
+ ]
+}

@@ -1,0 +1,61 @@
+:root{--bg:#0b0e14;--panel:#12161f;--line:#232a38;--amber:#ffb020;--red:#ff4d4d;--green:#37d67a;--txt:#e8ecf4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;font-family:-apple-system,'SF Pro Text',Helvetica,Arial,sans-serif;color:var(--txt)}
+
+.iphone{width:390px;height:844px;margin:24px auto;background:#101218;border-radius:60px;padding:14px;box-shadow:0 0 0 3px #2a2f3d,0 30px 80px #000}
+.screen{position:relative;height:100%;border-radius:48px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#000;border-radius:14px;z-index:5}
+.statusbar{display:flex;justify-content:space-between;padding:16px 28px 6px;font-size:13px;font-weight:600}
+.carrier{letter-spacing:.5px}
+
+.brand{display:flex;align-items:center;gap:10px;padding:10px 20px 8px;border-bottom:1px solid var(--line)}
+.logo{font-size:30px}
+.brand h1{font-size:24px;letter-spacing:3px}
+.brand .sub{font-size:10px;letter-spacing:2px;color:#8b95a7}
+.pill{margin-left:auto;font-size:10px;font-weight:800;letter-spacing:1px;padding:5px 9px;border-radius:20px}
+.pill.demo{background:none;border:1px solid var(--amber);color:var(--amber)}
+.pill.live{background:rgba(55,214,122,.12);border:1px solid var(--green);color:var(--green)}
+.pill.conn{background:none;border:1px solid #667;color:#a0aabf}
+.pill.drop{background:rgba(255,77,77,.12);border:1px solid var(--red);color:var(--red)}
+
+.tickerWrap{border-bottom:1px solid var(--line);background:#141019;overflow:hidden;white-space:nowrap;padding:8px 0}
+.ticker{display:inline-block;padding-left:100%;font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--amber);animation:tick 22s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+.chat{flex:1;padding:10px 14px;overflow-y:auto;font-size:14px;line-height:1.45}
+.chat .sys{text-align:center;font-size:11px;color:#8b95a7;margin:6px 0}
+.bub{max-width:82%;margin:6px 0;padding:9px 12px;border-radius:16px;animation:pop .18s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}}
+.agent{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+.agent b{color:var(--amber);font-size:10px;letter-spacing:1px;display:block;margin-bottom:3px}
+.me{background:#1d3a5f;border:1px solid #2b4d78;margin-left:auto;border-bottom-right-radius:4px}
+.me b{color:#7fc4ff;font-size:10px;letter-spacing:1px;display:block;margin-bottom:3px}
+.evt{max-width:90%;margin:8px auto;text-align:center;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--red);border:1px dashed var(--red);padding:6px 8px;border-radius:10px}
+.evt.ok{color:var(--green);border-color:var(--green)}
+
+.keypad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:6px 14px}
+.keypad button{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:8px 4px;font-size:18px;font-weight:700}
+.keypad button small{display:block;font-size:8px;letter-spacing:.5px;color:#8b95a7;font-weight:600;margin-top:2px}
+.keypad button:active{background:#1e2635}
+
+.callBtn{margin:10px 14px;padding:20px;background:linear-gradient(180deg,#ff5d5d,#e63333);color:#fff;border:none;border-radius:18px;font-size:26px;font-weight:800;letter-spacing:1px;box-shadow:0 6px 24px rgba(255,77,77,.35)}
+.callBtn small{font-size:11px;letter-spacing:2px;font-weight:600;opacity:.9}
+.callBtn:active{transform:scale(.98)}
+.callBtn.end{background:linear-gradient(180deg,#3a4152,#22283a)}
+
+.attachRow{display:flex;gap:8px;align-items:center;padding:0 14px 6px}
+.attachRow button{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 10px;font-size:12px}
+.attachNote{font-size:10px;color:#8b95a7}
+.attachPrev{display:flex;gap:8px;padding:0 14px}
+.attachPrev img,.attachPrev span{max-width:70px;border-radius:8px;border:1px solid var(--line);object-fit:cover}
+.attachPrev span{color:#8b95a7;font-size:10px;padding:4px}
+
+.attachNote:empty,.attachPrev:empty{display:none}
+
+/* AUDIO-ONLY MODE: no-data roaming phone — strip all data-dependent UI */
+body.audio-only #photoBtn,body.audio-only #fileBtn,
+body.audio-only #attachPrev,body.audio-only #attachNote,
+body.audio-only #photoInput,body.audio-only #fileInput{display:none!important}
+
+.homebar{height:24px;display:flex;align-items:center;justify-content:center}
+.homebar::after{content:"";width:130px;height:5px;border-radius:3px;background:#4a5164}

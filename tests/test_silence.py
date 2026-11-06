@@ -1,7 +1,7 @@
 """Offline tests for silence handling, dropped calls and SafetyAgent tools.
 
 Fake session, no network, no inference credits. AC5.1 and AC5.5 from the TDD.
-AC3.1 (confirm_location) and AC3.2 (start_check_in) arrive with build steps 10/14.
+AC3.1 (confirm_location) and AC3.2 (start_check_in) live in test_safety_phase_b.py.
 """
 
 import asyncio

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas — 24/7 Safety Line (iPhone)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="iphone">
+  <div class="screen">
+    <!-- iOS chrome -->
+    <div class="statusbar">
+      <span id="clock">9:41</span>
+      <span class="carrier">●●● KV-TELECOM</span>
+      <span>▰</span>
+    </div>
+    <div class="notch"></div>
+
+    <!-- app header -->
+    <div class="brand">
+      <div class="logo">🛡️</div>
+      <div>
+        <h1>ATLAS</h1>
+        <div class="sub">24/7 TRAVELER SAFETY LINE</div>
+      </div>
+      <span id="connPill" class="pill demo">DEMO</span>
+    </div>
+
+    <!-- ticker -->
+    <div class="tickerWrap">
+      <div class="ticker" id="ticker">RIOTS: AVOID GARE DU NORD &#8226; 112 ANSWERED IN ENGLISH &#8226; POLICE 17 &#8226; AMBULANCE 15 &#8226; FIRE 18 &#8226; US EMBASSY +33 1 43 12 22 22 &#8226; STAY INDOORS, AWAY FROM WINDOWS &#8226;</div>
+    </div>
+
+    <!-- transcript -->
+    <div class="chat" id="chat">
+      <div class="sys">Paris — 10th arr. Riots active. Emergency services busy.</div>
+    </div>
+
+    <!-- keypad -->
+    <div class="keypad">
+      <button data-key="1">1<small>YES / I HEAR YOU</small></button>
+      <button data-key="2">2<small>NO</small></button>
+      <button data-key="0">0<small>GET ME A PERSON</small></button>
+    </div>
+
+    <!-- big call button -->
+    <button class="callBtn" id="callBtn">CALL ATLAS<br><small>24/7 SAFETY LINE</small></button>
+
+    <!-- attach row -->
+    <div class="attachRow">
+      <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+      <button id="photoBtn">📷 Take photo</button>
+      <input type="file" id="fileInput" hidden>
+      <button id="fileBtn">📎 Attach file</button>
+      <span id="attachNote"></span>
+    </div>
+    <div class="attachPrev" id="attachPrev"></div>
+
+    <div class="homebar"></div>
+  </div>
+</div>
+<script src="https://unpkg.com/livekit-client@2/dist/livekit-client.umd.js"></script>
+<script src="telephony.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

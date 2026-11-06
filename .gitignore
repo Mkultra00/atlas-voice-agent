@@ -31,3 +31,9 @@ KMS
 
 # GitHub CLI
 .github/personal-instructions.md
+
+# Atlas: undelivered ops alerts (local demo only) and deploy secrets
+ops_log.jsonl
+.env.secrets
+.live-url
+.env.local
