@@ -144,18 +144,14 @@ const telephony = (() => {
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
     });
   }
-  /* Caller mic → narrowband → custom LiveKit audio track. Returns true on success. */
+  /* Caller mic → published RAW (no WebAudio uplink). A suspended/lagging AudioContext
+     makes the filter chain emit a silent track — mic "publishes" but the agent gets
+     zeros and never transcribes. Uplink must be the raw track; the phone effect is
+     downlink-only (what the caller hears). Returns true on success. */
   async function telcoMic(room, raw) {
     try {
-      const c = ac();
       if (!raw) raw = await grabMic();
-      const src = c.createMediaStreamSource(raw);
-      const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
-      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400;
-      const g = c.createGain(); g.gain.value = 1.5;
-      const dest = c.createMediaStreamDestination();
-      src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(dest);
-      const track = new LivekitClient.LocalAudioTrack(dest.stream.getAudioTracks()[0]);
+      const track = new LivekitClient.LocalAudioTrack(raw.getAudioTracks()[0]);
       await room.localParticipant.publishTrack(track);
       return true;
     } catch (e) { return false; }
