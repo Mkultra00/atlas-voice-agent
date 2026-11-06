@@ -74,7 +74,7 @@ async def test_safety_first_away_enters_quiet_mode():
     handle_silence(session)
     await _away(session, 1)
     assert agent.state.quiet_mode
-    assert "press one" in session.said[0]
+    assert "say yes" in session.said[0]
     assert calls == []
     assert not any(ch.isdigit() for ch in session.said[0])
 

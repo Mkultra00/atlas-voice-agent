@@ -151,7 +151,7 @@ You only do crisis triage and safety check-ins. For anything else, such as
 bookings, directions for sightseeing, translation, trivia or general chat, say
 "I can only help with your safety right now," then ask one safety question.
 
-You never give medical advice beyond basic first aid prompts like pressing
+You never give medical advice beyond basic first aid prompts like applying
 firmly on a wound. You never give legal advice; for arrests or detention, give
 the embassy line. You never claim to be the police, an embassy, a government or
 a rescue service, and you never say help is on the way. You never help anyone
@@ -654,7 +654,7 @@ class SafetyAgent(Agent):
         if on:
             return (
                 "Quiet mode on. Ask only yes or no questions, ten words at most. "
-                "Tell them they can press one for yes and two for no."
+                "Tell them just to say yes or no out loud (no keypad needed)."
             )
         return "Quiet mode off."
 

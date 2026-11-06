@@ -30,7 +30,7 @@ function beat(name){
   PLAYED.add(name);
   switch(name){
     case 'start':
-      agent("This is Atlas — 24/7 traveler safety. I know why you're calling, Alex Carter — your hotel is on Boulevard de Magenta, near Gare du Nord. Are you safe right now? Press 1 for YES, 2 for NO.");
+      agent("This is Atlas — 24/7 traveler safety. I know why you're calling, Alex Carter — your hotel is on Boulevard de Magenta, near Gare du Nord. Are you safe right now? Just tell me yes or no.");
       awaiting='yes'; break;
     case 'yes':
       me('1');
@@ -38,7 +38,7 @@ function beat(name){
       awaiting=null; break;
     case 'move':
       me('2 — I want to move');
-      agent('Route checked and clear: Commissariat Police 10e arr is 150 m from your hotel — walking there avoids Gare du Nord entirely. One rule: stay on sidewalks, away from the crowd. Now — press 1 so I know you still hear me.');
+      agent('Route checked and clear: Commissariat Police 10e arr is 150 m from your hotel — walking there avoids Gare du Nord entirely. One rule: stay on sidewalks, away from the crowd. Now start walking and talk to me — I hear you.');
       awaiting='hear'; break;
     case 'hear':
       me('1');
@@ -104,8 +104,8 @@ $('callBtn').addEventListener('click',async()=>{
       telephony.timer(t=>{ $('connPill').textContent=t; });
       /* caller's voice → narrowband telco (300–3400 Hz) before publishing */
       const telcoMicOk=await telephony.telcoMic(room);
-      if(telcoMicOk) setTimeout(()=>evt('PHONE LINE LIVE — SPEAK TO ATLAS (1 YES / 2 NO / 0 OPERATOR)',true),400);
-      else { try{ await room.localParticipant.setMicrophoneEnabled(true); setTimeout(()=>evt('MIC LIVE — SPEAK TO ATLAS (1 YES / 2 NO / 0 OPERATOR)',true),400); }catch(e){ evt('MIC BLOCKED — ALLOW MICROPHONE IN TAB',false); } }
+      if(telcoMicOk) setTimeout(()=>evt('PHONE LINE LIVE — SPEAK TO ATLAS',true),400);
+      else { try{ await room.localParticipant.setMicrophoneEnabled(true); setTimeout(()=>evt('MIC LIVE — SPEAK TO ATLAS',true),400); }catch(e){ evt('MIC BLOCKED — ALLOW MICROPHONE IN TAB',false); } }
     }catch(e){ live=false; setPill('demo'); setCallBtn('end'); evt('LIVE WIRE FAILED — FELL BACK TO DEMO MODE'); startScript(); }
   } else { connected=true; live=false; setPill('demo'); setCallBtn('end'); startScript(); }
 });

@@ -107,7 +107,7 @@ def handle_silence(session: AgentSession) -> None:
         if away_count == 1:
             await agent.enter_quiet_mode()
             session.say(
-                "If you can't talk, stay on the line. Say yes, or press one, if you're okay."
+                "If you can't talk, stay on the line. Just say yes, if you're okay."
             )
         elif away_count == 2:
             delivered = await agent.escalate_from_code(
