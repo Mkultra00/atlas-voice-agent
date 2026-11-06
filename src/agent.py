@@ -229,6 +229,20 @@ async def entrypoint(ctx: JobContext) -> None:
             bg_tasks.add(task)
             task.add_done_callback(bg_tasks.discard)
 
+    @ctx.room.on("data_received")
+    def _on_typed_text(dp: rtc.DataPacket) -> None:
+        # Typed text from the demo phone acts exactly like a spoken turn.
+        if dp.topic != "atlas-text":
+            return
+        text = dp.data.decode("utf-8", "ignore").strip()
+        if not text or len(text) > 500:
+            return
+        task = asyncio.create_task(
+            session.generate_reply(user_input=text, allow_interruptions=True)
+        )
+        bg_tasks.add(task)
+        task.add_done_callback(bg_tasks.discard)
+
     @ctx.room.on("participant_disconnected")
     def _on_participant_disconnected(p: rtc.RemoteParticipant) -> None:
         # Backup for network drops where session "close" may not fire (U8).

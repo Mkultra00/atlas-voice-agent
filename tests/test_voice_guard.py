@@ -4,6 +4,7 @@ import pytest
 
 from voice_guard import (
     BLOCKED_SENTENCE,
+    StyleGuard,
     clean,
     extract_digit_runs,
     guard_stream,
@@ -174,3 +175,96 @@ async def test_guard_stream_logs_lint(caplog):
     with caplog.at_level(logging.WARNING):
         _ = [s async for s in guard_stream(_agen(["A. B. C. D?", " E?"]), set(), log)]
     assert "short_turns_violation" in caplog.text
+
+
+# --- StyleGuard: enforcing short-turn shaper (H2++) --------------------------
+
+
+async def test_style_guard_caps_sentences():
+    g = StyleGuard(set())
+    out = g.feed("Stay inside. Move from the glass. Stay away from windows. I am here now.")
+    out += g.finalize()
+    assert out.startswith("Stay inside. Move from the glass.")
+    assert "Stay away from windows" not in out
+    assert "I am here now" not in out
+
+
+async def test_style_guard_allowlist_blocks_unverified_numbers():
+    g = StyleGuard({"911"})
+    out = g.feed("Stay inside. Call one one two now.")
+    assert "one one two" not in out
+    assert BLOCKED_SENTENCE in out
+
+
+async def test_style_guard_number_gets_third_sentence():
+    g = StyleGuard({"17"})
+    out = g.feed(
+        "Stay low. The police line in Paris is one seven. "
+        "I will check in with you again shortly."
+    )
+    assert "one seven" in out
+    assert "I will check in" in out  # 3rd sentence allowed only because of digits
+
+
+async def test_style_guard_one_question_per_reply():
+    g = StyleGuard(set())
+    out = g.feed("Where are you? Is anyone hurt?")
+    assert out == "Where are you? "
+    # fresh reply: verbatim repeat of something already SAID is dropped
+    g2 = StyleGuard(set(), seen=g._seen)
+    out2 = g2.feed("Where are you?")
+    assert out2 == ""
+
+
+async def test_style_guard_list_recitation_capped():
+    g = StyleGuard(set())
+    out = g.feed(
+        "First lock the door. Second move away from the glass. "
+        "Third stay on the line. Fourth silence your phone."
+    )
+    assert out == "First lock the door. Second move away from the glass. "
+    assert "Third" not in out and "Fourth" not in out
+
+
+async def test_style_guard_tool_call_chunk_passthrough():
+    from dataclasses import dataclass, field
+
+    @dataclass
+    class Chunk:
+        text: str | None = None
+        tool_calls: list = field(default_factory=list)
+
+    calls: list[Chunk] = []
+
+    class FakeNode:
+        def __aiter__(self):
+            return self
+
+        async def __anext__(self):
+            if not calls:
+                calls.append(Chunk())
+                return Chunk(text="Stay inside. Move now.")
+            if len(calls) < 2:
+                calls.append(Chunk())
+                return Chunk()
+            raise StopAsyncIteration
+
+    g = StyleGuard(set())
+    items = []
+    async for item in FakeNode():
+        if isinstance(item, str):
+            piece = g.feed(item)
+            if piece:
+                items.append(piece)
+            continue
+        text = getattr(item, "text", None)
+        if isinstance(text, str) and text:
+            piece = g.feed(text)
+            if piece:
+                items.append(piece)
+        else:
+            items.append(item)  # sentinel / tool chunk passes untouched
+    assert len(items) == 2
+    assert "Stay inside." in items[0]
+    # the blank tool-call frame passed through untouched (non-str object)
+    assert not isinstance(items[1], str) and getattr(items[1], "text", "?") is None

@@ -40,7 +40,13 @@ from livekit.agents.beta.tools import EndCallTool
 import safety_tools as st
 from prompts import CRISIS_RULES, QUIET_MODE_RULES, build_instructions
 from safety_rules import decide
-from voice_guard import digits_only, extract_digit_runs, guard_stream, speak_number
+from voice_guard import (
+    StyleGuard,
+    digits_only,
+    extract_digit_runs,
+    guard_stream,
+    speak_number,
+)
 
 logger = logging.getLogger("safety-agent")
 
@@ -349,6 +355,53 @@ class SafetyAgent(Agent):
             self.state.allowed_numbers |= extract_digit_runs(ev.transcript)
             # NEVER log ev.transcript
 
+    async def llm_node(self, chat_ctx: Any, tools: Any, model_settings: ModelSettings):
+        """Style-guard upstream of TTS and text forwarding (voice AND sim).
+
+        The base llm_node yields ChatChunk | str | FlushSentinel. Text content is
+        fed through StyleGuard; tool-call chunks and sentinels pass untouched.
+        """
+        from dataclasses import replace
+
+        inspect = __import__("inspect")
+        node = Agent.default.llm_node(self, chat_ctx, tools, model_settings)
+        if inspect.iscoroutine(node):
+            node = await node
+        seen = getattr(self, "_spoken_norms", None)
+        if seen is None:
+            seen = []
+            self._spoken_norms = seen
+        guard = StyleGuard(
+            self.state.allowed_numbers,
+            logger,
+            quiet_mode=self.state.quiet_mode,
+            seen=seen,
+        )
+        async for item in node:
+            if isinstance(item, str):
+                piece = guard.feed(item)
+                if piece:
+                    yield piece
+                continue
+            text = getattr(item, "text", None)
+            if isinstance(text, str) and text:
+                piece = guard.feed(text)
+                if piece:
+                    try:
+                        item = replace(item, text=piece)
+                    except Exception:
+                        item.text = piece
+                has_calls = bool(
+                    getattr(item, "delta", None) and getattr(item.delta, "tool_calls", None)
+                )
+                if piece or has_calls:
+                    yield item
+            else:
+                yield item
+        tail = guard.finalize()
+        if tail:
+            yield tail
+
     def tts_node(self, text: AsyncIterable[str], model_settings: ModelSettings):
         guarded = guard_stream(
             text, self.state.allowed_numbers, logger, quiet_mode=self.state.quiet_mode
@@ -595,6 +648,10 @@ class SafetyAgent(Agent):
                 "Let me alert a person."
             )
         s.allowed_numbers |= digits
+        text += (
+            " Your next sentence must be just that number, spoken digit by digit,"
+            " and nothing else."
+        )
         logger.info("get_emergency_contacts outcome=table cc=%s", cc)
         if nat and not _embassy(nat, cc):
             text += " No verified embassy line for their passport in this country."

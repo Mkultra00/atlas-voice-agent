@@ -31,6 +31,12 @@ _DIGIT_WORDS = {
     "eight": "8",
     "nine": "9",
 }
+# A sentence that SPEAKS digits (e.g. "one seven") earns the extra sentence
+# just like literal digit runs do (Paris lines 17/15/18 are 2 digits, below
+# the 3+ run threshold by design).
+_HAS_DIGIT_WORD = re.compile(
+    r"\b(?:zero|oh|o|one|two|three|four|five|six|seven|eight|nine)\b"
+)
 # Tokens that sit inside a digit run without breaking it.
 _JOINERS = {"plus", "+", "-", "dash", "(", ")"}
 # Tokens that continue a run but mark a group boundary ("plus three three, one").
@@ -225,6 +231,124 @@ async def guard_stream(
         yield out
     if log is not None and spoken:
         res = lint_reply("".join(spoken), quiet_mode=quiet_mode)
+        if not res.ok:
+            log.warning(
+                "short_turns_violation sentences=%d questions=%d words=%d problems=%s",
+                res.sentences,
+                res.questions,
+                res.words,
+                ",".join(res.problems),
+            )
+
+
+class StyleGuard:
+    """Enforcing short-turn shaper for LLM output (H2++).
+
+    guard_stream() only WARNS after the fact; flash-lite keeps violating under
+    sim pressure. StyleGuard truncates mechanically, model cannot ignore it:
+    - at most 2 sentences per reply (3 when the sentence carries a verified
+      number; 1 in quiet mode plus the same number allowance),
+    - at most 1 question per reply (extra question sentences dropped),
+    - verbatim repeats already said this call are dropped (cross-turn),
+    - single-breath char budget.
+    Feed TTS-bound stream chunks; collect pieces; finalize() flushes the tail.
+    """
+
+    MAX_CHARS = 240
+
+    def __init__(
+        self,
+        allowed: set[str],
+        log: logging.Logger | None = None,
+        *,
+        quiet_mode: bool = False,
+        seen: list[str] | None = None,
+    ) -> None:
+        self._allowed = allowed
+        self._log = log
+        self._quiet = quiet_mode
+        self._seen = seen if seen is not None else []
+        self._extra = 0  # unused sentence budget earned by number sentences
+        self._buf = ""
+        self.spoken: list[str] = []
+        self._sentences = 0
+        self._questions = 0
+        self._chars = 0
+
+    def feed(self, chunk: str) -> str:
+        self._buf += chunk
+        pieces: list[str] = []
+        while m := SENTENCE_END.search(self._buf):
+            sentence, self._buf = self._buf[: m.end()], self._buf[m.end():]
+            piece = self._emit(sentence)
+            if piece:
+                pieces.append(piece)
+        return "".join(pieces)
+
+    def finalize(self) -> str:
+        tail, self._buf = self._buf, ""
+        if not tail.strip():
+            return ""
+        return self._emit(tail) or ""
+
+    def _drop(self, reason: str) -> None:
+        if self._log is not None:
+            self._log.warning("style_guard_drop reason=%s", reason)
+
+    def _emit(self, sentence: str) -> str:
+        out = clean(number_guard(sentence, self._allowed, self._log))
+        raw = out.strip()
+        if not raw:
+            return ""
+        norm = re.sub(r"[^a-z0-9]+", "", raw.lower())
+        if norm and norm in self._seen:
+            self._drop("repeat")
+            return ""
+        cap = 1 if self._quiet else 2
+        cap += self._extra  # earned carry-over from earlier number sentences
+        if self._sentences >= cap:
+            self._drop(f"sentences={self._sentences}")
+            return ""
+        qn = raw.count("?")
+        if self._questions + qn > 1:
+            self._drop("questions")
+            return ""
+        if self._chars + len(raw) > self.MAX_CHARS and self._sentences > 0:
+            self._drop("chars")
+            return ""
+        if _digit_runs(raw) or _HAS_DIGIT_WORD.search(raw.lower()):
+            # this sentence spoken digits: earns ONE extra sentence for later
+            self._extra += 1
+        self._sentences += 1
+        self._questions += qn
+        self._chars += len(raw)
+        if norm:
+            self._seen.append(norm)
+            if len(self._seen) > 12:
+                del self._seen[: len(self._seen) - 12]
+        self.spoken.append(raw)
+        return out
+
+
+async def style_guard_stream(
+    text: AsyncIterable[str],
+    allowed: set[str],
+    log: logging.Logger | None = None,
+    *,
+    quiet_mode: bool = False,
+    seen: list[str] | None = None,
+) -> AsyncIterable[str]:
+    """Guard_stream twin that ENFORCES (see StyleGuard) instead of warning."""
+    guard = StyleGuard(allowed, log, quiet_mode=quiet_mode, seen=seen)
+    async for chunk in text:
+        piece = guard.feed(chunk)
+        if piece:
+            yield piece
+    tail = guard.finalize()
+    if tail:
+        yield tail
+    if log is not None and guard.spoken:
+        res = lint_reply("".join(guard.spoken), quiet_mode=quiet_mode)
         if not res.ok:
             log.warning(
                 "short_turns_violation sentences=%d questions=%d words=%d problems=%s",

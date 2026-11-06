@@ -152,3 +152,17 @@ function preview(e,isPhoto){
   if(isPhoto){ const r=new FileReader(); r.onload=()=>{ photoB64=r.result; const img=document.createElement('img'); img.src=photoB64; $('attachPrev').appendChild(img); $('attachNote').textContent='photo attached → included with escalation'; }; r.readAsDataURL(f); }
   else{ $('attachNote').textContent='file attached: '+fileName; const s=document.createElement('span'); s.textContent='📄 '+fileName; $('attachPrev').appendChild(s); }
 }
+
+/* ---------- typed turns: type instead of speak (works in every mode) ---------- */
+const TXT=$('txtBar'), TXTS=$('txtSend');
+function sendTyped(){
+  const m=(TXT.value||'').trim(); if(!m) return;
+  TXT.value='';
+  me(m);
+  if (room && connected) {
+    try { room.localParticipant.publishData(new TextEncoder().encode(m), {reliable:true, topic:'atlas-text'}); }
+    catch(e){ evt('TYPE SEND FAILED', false); }
+  } else { evt('TAP CALL FIRST — TYPE FLOWS AFTER CONNECT', false); }
+}
+TXTS.onclick=sendTyped;
+TXT.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendTyped(); } });

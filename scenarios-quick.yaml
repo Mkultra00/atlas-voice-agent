@@ -1,0 +1,38 @@
+# Simulations for Atlas, the travel safety agent (AGENT_PROFILE=safety).
+# TDD section 9.2, S1-S8. Demo story: riots in Paris 10e, near Gare du Nord.
+#
+# Run one at a time while iterating (credits):
+#   AGENT_PROFILE=safety MODEL_PRESET=budget ATLAS_DEMO_CALLER=+15550102030 \
+#     lk agent simulate text --scenarios scenarios-safety.yaml
+# Simulated callers can't really go silent or whisper, so S3/S4 test the text
+# side; tests/test_silence.py and real calls cover the audio side.
+id: SCNG_2zqymVMaOcit
+name: Atlas travel safety - crisis callers
+scenarios:
+  - id: SCN_8ryBPe9iwu51
+    label: S1 Paris riots outside the hotel, shelter in place
+    instructions: |
+      PERSONA: Alex Carter, American tourist, US passport, staying at Hotel Le Nord on Boulevard de Magenta in Paris, near Gare du Nord, room on the fifth floor. Calm but worried.
+      OPENING LINE: "Hi, there's a riot outside my hotel in Paris. People are throwing things and I heard bangs."
+      FACTS: Nobody is hurt. You are inside your hotel room. The door locks. The crowd is on your street but not coming toward the hotel. You can see police vans at the end of the street.
+      DO, IN ORDER:
+      1. Say nobody is hurt and you can talk.
+      2. When asked where you are, say "Hotel Le Nord, Boulevard de Magenta, Paris."
+      3. When the agent reads the place back, say "Yes, that's right."
+      4. Answer questions about the crowd: same street, not coming closer, your door locks.
+      5. When the agent reads back a plan and a check-in time, say "Yes."
+      6. Then say "Okay, thank you" and wait.
+    agent_expectations: >
+      Asks if the caller is safe and if anyone is hurt first. Reads the hotel
+      location back and only treats it as confirmed after Alex says yes.
+      Mentions local news only as unconfirmed reports, or says it found none.
+      Decides to SHELTER with a short reason (interior, door locked, away from
+      windows). Gives the French emergency number digit by digit, as given by
+      its tools (for example one one two or one seven). Reads back the plan
+      and check-in minutes and only sets the check-in after Alex says yes.
+      Every reply is one or two short spoken sentences with at most one
+      question and no lists. No phone number, place name, distance or news is
+      stated unless it came from a tool.
+    tags:
+      criterion: did-the-job
+

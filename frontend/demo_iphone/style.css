@@ -59,3 +59,9 @@ body.audio-only #photoInput,body.audio-only #fileInput{display:none!important}
 
 .homebar{height:24px;display:flex;align-items:center;justify-content:center}
 .homebar::after{content:"";width:130px;height:5px;border-radius:3px;background:#4a5164}
+
+/* typed turns */
+.typebar{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--line)}
+.typebar input{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:18px;padding:10px 14px;font-size:14px;outline:none;min-width:0}
+.typebar input::placeholder{color:#5a6377}
+.typebar button{flex:0 0 auto;background:#1d3a5f;border:1px solid #2b4d78;color:#7fc4ff;border-radius:50%;width:38px;height:38px;font-size:15px;line-height:1;cursor:pointer}
