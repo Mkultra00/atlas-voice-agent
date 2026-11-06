@@ -105,13 +105,6 @@ $('callBtn').addEventListener('click',async()=>{
       await room.connect(WSS,TOKEN);
       setPill('live'); setCallBtn('end');
       telephony.timer(t=>{ $('connPill').textContent=t; });
-      /* pre-baked operator greeting: instant + loud the moment the wire connects */
-      try{
-        const g=document.createElement('audio'); g.autoplay=true; g.setAttribute('playsinline','');
-        g.src='/greeting.mp3'; g.style.display='none'; document.body.appendChild(g);
-        const pg=g.play(); if(pg&&pg.catch)pg.catch(()=>{});
-        telephony.telco(g);
-      }catch(e){}
       /* caller's voice → narrowband telco (300–3400 Hz) before publishing */
       const telcoMicOk=await telephony.telcoMic(room,micStream);
       if(telcoMicOk) setTimeout(()=>evt('PHONE LINE LIVE — SPEAK TO ATLAS',true),400);
