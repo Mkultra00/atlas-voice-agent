@@ -101,7 +101,7 @@ $('callBtn').addEventListener('click',async()=>{
     try{
       room=new LivekitClient.Room({audioCaptureDefaults:{noiseSuppression:true}});
       room.on('disconnected',()=>{ setPill('drop'); evt('CALL DROPPED — ATLAS FIRED INSTANT DUTY-DESK ALERT',false); setCallBtn('idle'); connected=false; live=false; dialed=false; telephony.endAll(); });
-      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); const ap=a.play(); if(ap&&ap.catch)ap.catch(()=>{}); telephony.telco(a); } });
+      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); telephony.telcoBypassable(a); } });
       await room.connect(WSS,TOKEN);
       setPill('live'); setCallBtn('end');
       telephony.timer(t=>{ $('connPill').textContent=t; });

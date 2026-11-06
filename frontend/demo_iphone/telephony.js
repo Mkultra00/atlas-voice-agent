@@ -118,6 +118,17 @@ const telephony = (() => {
   }
 
   /* ---- in-call telco sound ---- */
+  /* Agent inbound audio: play the RAW track directly (no WebAudio tap).
+     A captured element (createMediaElementSource) loses its fallback — if the
+     graph's destination is dead or suspended, the caller hears NOTHING.
+     Raw <audio> playback bypasses the graph entirely. Phone tint stays on the
+     dial theater; the agent's voice must simply arrive. */
+  function telcoBypassable(audioEl) {
+    try { audioEl.volume = 1.0; } catch (e) {}
+    const p = audioEl.play && audioEl.play();
+    if (p && p.catch) p.catch(() => {});
+    return true;
+  }
   /* Narrowband 300–3400 Hz on agent inbound: real "telephone voice" */
   function telco(audioEl) {
     const c = ac();
