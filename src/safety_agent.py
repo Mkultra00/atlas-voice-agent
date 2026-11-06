@@ -356,54 +356,20 @@ class SafetyAgent(Agent):
             # NEVER log ev.transcript
 
     async def llm_node(self, chat_ctx: Any, tools: Any, model_settings: ModelSettings):
-        """Style-guard upstream of TTS and text forwarding (voice AND sim).
+        """Pass-through (StyleGuard text polish demoted).
 
-        The base llm_node yields ChatChunk | str | FlushSentinel. Text content is
-        fed through StyleGuard; tool-call chunks and sentinels pass untouched.
+        HISTORY: a guarded override here (mutating ChatChunk.delta.content)
+        BROKE the TTS audio publish path — agents ran, produced transcripts,
+        but published NO audio track. Raw pass-through restored for the demo;
+        tts_node (below) still guards the spoken text.
         """
-        from dataclasses import replace
-
-        inspect = __import__("inspect")
         node = Agent.default.llm_node(self, chat_ctx, tools, model_settings)
+        inspect = __import__("inspect")
         if inspect.iscoroutine(node):
             node = await node
-        seen = getattr(self, "_spoken_norms", None)
-        if seen is None:
-            seen = []
-            self._spoken_norms = seen
-        guard = StyleGuard(
-            self.state.allowed_numbers,
-            logger,
-            quiet_mode=self.state.quiet_mode,
-            seen=seen,
-        )
         logger.info("llm_node_active")  # probe: proves dispatch reaches the override
         async for item in node:
-            # ChatChunk (pydantic) carries text in delta.content — NOT item.text.
-            if isinstance(item, str):
-                piece = guard.feed(item)
-                if piece:
-                    yield piece
-                continue
-            delta = getattr(item, "delta", None)
-            content = getattr(delta, "content", None) if delta is not None else None
-            has_calls = bool(
-                getattr(delta, "tool_calls", None) if delta is not None else None
-            )
-            if has_calls or not (isinstance(content, str) and content):
-                yield item  # tool calls, sentinels, empty/metadata chunks
-                continue
-            piece = guard.feed(content)
-            if piece:
-                try:
-                    delta.content = piece
-                    yield item
-                except Exception:
-                    yield piece  # str chunk fallback; generation accepts both
-            # else: sentence dropped by the guard — do not forward this chunk
-        tail = guard.finalize()
-        if tail:
-            yield tail
+            yield item
 
     def tts_node(self, text: AsyncIterable[str], model_settings: ModelSettings):
         guarded = guard_stream(
