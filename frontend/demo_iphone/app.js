@@ -92,12 +92,14 @@ $('callBtn').addEventListener('click',async()=>{
   setCallBtn('connecting');
   dialed=true; awaiting=null;
   chat.innerHTML='';
+  setPill('dial'); evt('DIALING ATLAS — PARIS LINE…',true);
+  try{ await telephony.dialSequence(); }catch(e){}
   if(ROOM&&TOKEN&&WSS){
     connected=true; live=true; setPill('conn');
     try{
       room=new LivekitClient.Room({audioCaptureDefaults:{noiseSuppression:true}});
       room.on('disconnected',()=>{ setPill('drop'); evt('CALL DROPPED — ATLAS FIRED INSTANT DUTY-DESK ALERT',false); setCallBtn('idle'); connected=false; live=false; dialed=false; telephony.endAll(); });
-      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); try{ a.volume=1.0; const p=a.play&&a.play(); if(p&&p.catch)p.catch(()=>{}); }catch(e){} } });
+      room.on('trackSubscribed',(tr,p)=>{ if(tr.kind==='audio'){ try{evt('AGENT AUDIO ARRIVED ('+((p&&p.identity)||'unknown')+')',true);}catch(x){} const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); try{ a.volume=1.0; const p=a.play&&a.play(); if(p&&p.catch)p.catch(()=>{}); }catch(e){} } });
       await room.connect(WSS,TOKEN);
       setPill('live'); setCallBtn('end');
       telephony.timer(t=>{ $('connPill').textContent=t; });
