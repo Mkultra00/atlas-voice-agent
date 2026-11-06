@@ -37,10 +37,42 @@ DIFFICULT_CALLER_RULES = """
 """
 
 
-def build_instructions(job_prompt: str) -> str:
-    """Your agent's prompt plus today's date and the shared rules."""
+CRISIS_RULES = """
+# Crisis call rules
+
+- Say one or two short sentences per turn, then stop. Ask one question at a time.
+- Give one instruction per turn, as a short command: "Lock the door."
+- Acknowledge feelings in one short clause at most, then give the action.
+- Before any lookup, say a few words first, like "Checking the route now."
+- Read phone numbers digit by digit, exactly as the tool gave them.
+- Say how sure you are: news is always "unconfirmed reports say".
+- If the caller interrupts with new information, drop what you were saying and
+  answer the new information. Do not repeat earlier steps.
+- If the caller chooses not to follow your advice, state the risk once, then
+  help with what they chose.
+"""
+
+QUIET_MODE_RULES = """
+# Quiet mode is ON
+
+The caller cannot speak freely. Ask only questions answerable with yes or no.
+Start each question with "Say yes" or "Press one", for example "Say yes, or
+press one, if you are still in the car." Use at most ten words per turn. Never
+ask them to describe anything.
+"""
+
+
+def build_instructions(job_prompt: str, extra: str = "") -> str:
+    """Your agent's prompt plus today's date and the shared rules.
+
+    `extra` appends agent-specific rule blocks; empty keeps the starter prompts
+    byte-for-byte unchanged.
+    """
     today = date.today().strftime("%A, %B %d, %Y")
-    return (
+    out = (
         f"{job_prompt.strip()}\n\nToday is {today}.\n"
         f"{VOICE_RULES}\n{DIFFICULT_CALLER_RULES}"
     )
+    if extra:
+        out += f"\n{extra}"
+    return out

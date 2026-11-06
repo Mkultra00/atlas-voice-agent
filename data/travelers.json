@@ -1,0 +1,13 @@
+{
+  "_note": "FAKE demo data only. Keyed by E.164 caller number. code_word is never loaded into prompts or logs.",
+  "+15550102030": {
+    "first_name": "Alex",
+    "last_name": "Carter",
+    "nationality": "US",
+    "hotel": "Hotel Le Nord, Rue de Dunkerque, 10th arrondissement, near Gare du Nord",
+    "city": "Paris",
+    "country_code": "FR",
+    "emergency_contact": "+15550109999",
+    "code_word": "turtle"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "_verified_on": "2026-11-06",
+  "_verified_by": "US Embassy fr.usembassy.gov emergency-services page + TDD-commissioner cross-check 2026-11-06",
+  "_default": {
+    "text": "In most of Europe, one one two reaches emergency services from any phone. If you are in immediate danger, call the local emergency number now.",
+    "numbers": ["112"]
+  },
+  "countries": {
+    "FR": {
+      "name": "France",
+      "emergency": "112",
+      "police": "17",
+      "ambulance": "15",
+      "fire": "18",
+      "trust_police": true
+    },
+    "US": {
+      "name": "the United States",
+      "emergency": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "trust_police": true
+    },
+    "GB": {
+      "name": "the United Kingdom",
+      "emergency": "999",
+      "police": "999",
+      "ambulance": "999",
+      "fire": "999",
+      "trust_police": true
+    },
+    "DE": {
+      "name": "Germany",
+      "emergency": "112",
+      "police": "112",
+      "ambulance": "112",
+      "fire": "112",
+      "trust_police": true
+    },
+    "MX": {
+      "name": "Mexico",
+      "emergency": "911",
+      "police": "911",
+      "ambulance": "911",
+      "fire": "911",
+      "trust_police": true
+    }
+  },
+  "embassy_hotlines": {
+    "US": {
+      "FR": {
+        "label": "US Embassy in Paris",
+        "number": "+33 1 43 12 22 22"
+      }
+    }
+  }
+}
