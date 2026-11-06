@@ -92,8 +92,6 @@ $('callBtn').addEventListener('click',async()=>{
   setCallBtn('connecting');
   dialed=true; awaiting=null;
   chat.innerHTML='';
-  setPill('dial'); evt('DIALING ATLAS — PARIS LINE…',true);
-  try{ telephony.dialSequence(); }catch(e){}
   if(ROOM&&TOKEN&&WSS){
     connected=true; live=true; setPill('conn');
     try{
