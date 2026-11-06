@@ -120,22 +120,35 @@ const telephony = (() => {
   /* ---- in-call telco sound ---- */
   /* Narrowband 300–3400 Hz on agent inbound: real "telephone voice" */
   function telco(audioEl) {
-    try {
-      const c = ac();
-      const src = c.createMediaElementSource(audioEl);
-      const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300; hp.Q.value = 0.7;
-      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.7;
-      const g = c.createGain(); g.gain.value = 2.4;
-      src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(c.destination);
-    } catch (e) { /* fall through: raw audio still plays */ }
+    const c = ac();
+    const wire = () => {
+      try {
+        const src = c.createMediaElementSource(audioEl);
+        const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300; hp.Q.value = 0.7;
+        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400; lp.Q.value = 0.7;
+        const g = c.createGain(); g.gain.value = 2.4;
+        src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(c.destination);
+      } catch (e) { /* fall through: raw audio still plays */ }
+    };
+    if (c.state === 'running') { wire(); return; }
+    /* Context suspended (Chrome autoplay policy): do NOT tap the element yet —
+       a suspended graph mutes the element permanently. Wait for resume; only
+       route through the telco graph once the context is actually running. */
+    Promise.resolve(c.resume()).then(() => { if (c.state === 'running') wire(); }).catch(() => {});
+  }
+  /* Acquire the mic at click-gesture time: Chrome needs a fresh user gesture
+     to show the permission prompt, and denial is silent in async callbacks. */
+  async function grabMic() {
+    ac();  /* ensure/resume the shared context inside the gesture */
+    return navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+    });
   }
   /* Caller mic → narrowband → custom LiveKit audio track. Returns true on success. */
-  async function telcoMic(room) {
+  async function telcoMic(room, raw) {
     try {
       const c = ac();
-      const raw = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-      });
+      if (!raw) raw = await grabMic();
       const src = c.createMediaStreamSource(raw);
       const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
       const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3400;
@@ -158,5 +171,5 @@ const telephony = (() => {
 
   function endAll() { dialTone(false); ring(false); blip(); stopTimer(); }
 
-  return { dialSequence, dtmf, telco, telcoMic, timer, endAll, blip };
+  return { dialSequence, dtmf, telco, telcoMic, grabMic, timer, endAll, blip };
 })();

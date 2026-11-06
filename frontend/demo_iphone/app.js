@@ -90,6 +90,9 @@ document.querySelectorAll('.keypad button').forEach(b=>b.addEventListener('click
 $('callBtn').addEventListener('click',async()=>{
   if(connected){ try{ if(room) await room.disconnect(); }catch{} telephony.endAll(); dialed=false; connected=false; setCallBtn('idle'); setPill('demo'); return; }
   setCallBtn('connecting');
+  /* grab the mic NOW, inside the click gesture — Chrome's permission prompt
+     needs fresh user activation; a request several awaits later gets silently denied */
+  let micStream=null; try{ micStream=await telephony.grabMic(); }catch(e){ micStream=null; }
   await telephony.dialSequence();     /* dial tone → DTMF → ring → pickup */
   dialed=true; awaiting=null;
   chat.innerHTML='';
@@ -98,12 +101,19 @@ $('callBtn').addEventListener('click',async()=>{
     try{
       room=new LivekitClient.Room({audioCaptureDefaults:{noiseSuppression:true}});
       room.on('disconnected',()=>{ setPill('drop'); evt('CALL DROPPED — ATLAS FIRED INSTANT DUTY-DESK ALERT',false); setCallBtn('idle'); connected=false; live=false; dialed=false; telephony.endAll(); });
-      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; document.body.appendChild(a); telephony.telco(a); } });
+      room.on('trackSubscribed',tr=>{ if(tr.kind==='audio'){ const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); const ap=a.play(); if(ap&&ap.catch)ap.catch(()=>{}); telephony.telco(a); } });
       await room.connect(WSS,TOKEN);
       setPill('live'); setCallBtn('end');
       telephony.timer(t=>{ $('connPill').textContent=t; });
+      /* pre-baked operator greeting: instant + loud the moment the wire connects */
+      try{
+        const g=document.createElement('audio'); g.autoplay=true; g.setAttribute('playsinline','');
+        g.src='/greeting.mp3'; g.style.display='none'; document.body.appendChild(g);
+        const pg=g.play(); if(pg&&pg.catch)pg.catch(()=>{});
+        telephony.telco(g);
+      }catch(e){}
       /* caller's voice → narrowband telco (300–3400 Hz) before publishing */
-      const telcoMicOk=await telephony.telcoMic(room);
+      const telcoMicOk=await telephony.telcoMic(room,micStream);
       if(telcoMicOk) setTimeout(()=>evt('PHONE LINE LIVE — SPEAK TO ATLAS',true),400);
       else { try{ await room.localParticipant.setMicrophoneEnabled(true); setTimeout(()=>evt('MIC LIVE — SPEAK TO ATLAS',true),400); }catch(e){ evt('MIC BLOCKED — ALLOW MICROPHONE IN TAB',false); } }
     }catch(e){ live=false; setPill('demo'); setCallBtn('end'); evt('LIVE WIRE FAILED — FELL BACK TO DEMO MODE'); startScript(); }
