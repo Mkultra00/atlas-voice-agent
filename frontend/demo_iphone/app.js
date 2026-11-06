@@ -99,7 +99,7 @@ $('callBtn').addEventListener('click',async()=>{
     try{
       room=new LivekitClient.Room({audioCaptureDefaults:{noiseSuppression:true}});
       room.on('disconnected',()=>{ setPill('drop'); evt('CALL DROPPED — ATLAS FIRED INSTANT DUTY-DESK ALERT',false); setCallBtn('idle'); connected=false; live=false; dialed=false; telephony.endAll(); });
-      room.on('trackSubscribed',(tr,p)=>{ if(tr.kind==='audio'){ try{evt('AGENT AUDIO ARRIVED ('+((p&&p.identity)||'unknown')+')',true);}catch(x){} const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); document.body.appendChild(a); try{ a.volume=1.0; const p=a.play&&a.play(); if(p&&p.catch)p.catch(()=>{}); }catch(e){} } });
+      room.on('trackSubscribed',(tr,p)=>{ if(tr.kind==='audio'){ try{evt('AGENT AUDIO ARRIVED ('+((p&&p.identity)||'unknown')+')',true);}catch(x){} const a=document.createElement('audio'); a.autoplay=true; a.srcObject=tr; a.setAttribute('playsinline',''); a.setAttribute('data-agent-audio','1'); document.body.appendChild(a); window.__atlasAudio=a; try{ a.volume=1.0; const p=a.play&&a.play(); if(p&&p.catch)p.catch(()=>{}); }catch(e){} if(!window.__atlasWatch){ window.__atlasWatch=setInterval(()=>{ const el=window.__atlasAudio; if(!el) return; try{ if(!el.isConnected){ document.body.appendChild(el); } if(el.paused){ el.play&&el.play().catch(()=>{}); } el.volume=1.0; }catch(x){} },900); } } });
       await room.connect(WSS,TOKEN);
       setPill('live'); setCallBtn('end');
       telephony.timer(t=>{ $('connPill').textContent=t; });
