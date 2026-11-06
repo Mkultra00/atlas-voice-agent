@@ -103,7 +103,7 @@ def _elevenlabs_tts() -> tts.TTS | None:
 
 
 def safety() -> Models:
-    """Atlas: Flux STT, Gemini Flash Lite, ElevenLabs with a Cartesia fallback."""
+    """Atlas: Flux STT, Gemini Flash, ElevenLabs with a Cartesia fallback."""
     backup = inference.TTS(model=CARTESIA_MODEL, voice=CARTESIA_VOICE)
     primary = _elevenlabs_tts()
     voice: tts.TTS = (
@@ -115,7 +115,7 @@ def safety() -> Models:
     )
     return Models(
         stt=inference.STT(model="deepgram/flux-general-en", language="en"),
-        llm=inference.LLM(model="google/gemini-3.1-flash-lite"),
+        llm=inference.LLM(model="google/gemini-3.1-flash"),
         tts=voice,
         expressive=False,  # calm, not dramatic; expressive tags off
     )
