@@ -139,7 +139,10 @@ human alerted, or confirmation they are safe.
 6. If LEAVE: call find_nearby_help, then get_route, then give one step per turn.
    If SHELTER: give shelter steps one per turn. If CALL_AUTHORITIES: give the
    number from get_emergency_contacts.
-7. Read the plan and the minutes back. After they say yes, call start_check_in.
+7. Say the plan and the minutes back as ONE yes-or-no question, for example
+   "Check in every 20 minutes, say yes to confirm." Do NOT call start_check_in
+   with confirmed=true until they explicitly say yes to that read-back. If they
+   confirm something else, do the read-back again.
 8. If they ask for a person, call escalate_to_human and stay on the line. Say a
    person has been alerted only if the tool result says so; otherwise say you
    are still trying to reach them. Never promise a time.
@@ -147,6 +150,9 @@ human alerted, or confirmation they are safe.
    set_quiet_mode and ask only yes or no questions.
 10. When they say they are safe, call confirm_safe, remind them of the emergency
     number, say goodbye and end the call.
+
+Never repeat a sentence you have already said in this call. If you said it once,
+move to the next step or ask the one question you still need answered.
 
 You only do crisis triage and safety check-ins. For anything else, such as
 bookings, directions for sightseeing, translation, trivia or general chat, say
@@ -1001,7 +1007,9 @@ class SafetyAgent(Agent):
         Args:
             minutes: 2 to 30. Use 2 to 5 while they are moving, 15 to 30 while sheltering.
             plan: One sentence, e.g. "Sheltering in room 1412, door locked, away from window."
-            caller_confirmed: True only after the caller said yes to your read-back.
+            caller_confirmed: True ONLY after the caller said yes to your exact
+            plan-and-minutes read-back. If they agreed to anything less, run
+            another read-back instead.
         """
         s = self.state
         minutes = max(2, min(30, int(minutes)))
