@@ -81,6 +81,23 @@ def _parse_mail_intent(text: str) -> dict[str, str] | None:
 
 CFG = SovereignConfig.resolve()
 app = FastAPI(title="Atlas Sovereign", version="0.1.0")
+
+
+@app.on_event("startup")
+async def _warm_llm() -> None:
+    """Warm the cloud LLM lane at boot, then refresh every 3 min so demo turns never
+    eat the ~60-100s cold start (ollama session expires / unloads when idle)."""
+    import asyncio
+
+    async def _warm():
+        while True:
+            try:
+                await llm.chat([{"role": "user", "content": "warm"}], CFG, timeout=120.0)
+            except Exception:
+                pass
+            await asyncio.sleep(180.0)
+
+    asyncio.create_task(_warm())
 HISTORY: list[dict[str, str]] = []
 
 
@@ -185,6 +202,10 @@ async def turn(text: str | None = Form(None), audio: UploadFile | None = File(No
                     f"one <<OPERATOR>> directive. {lane}; keep the spoken line before the marker.")},
             ]
             raw = await llm.chat(nudge, CFG)
+    # GUARD: no connector intent in the user's line → strip any self-initiated
+    # operator directive (memory-primed LLM would otherwise burn ~90s on tool runs).
+    if hint is None and not CONN_HINTS.search(user_text):
+        raw = re.sub(r"<<OPERATOR>>.*?(?:<<OPERATOR>>|$)", "", raw, flags=re.S)
     reply, ops_used = await _resolve_operator(messages, raw)
     if (ops_desc and CFG.operator_enabled and not PENDING
             and _suggest(user_text) == "mail_send"):
@@ -193,6 +214,26 @@ async def turn(text: str | None = Form(None), audio: UploadFile | None = File(No
         if intent:
             PENDING.update(intent)  # arm the two-turn confirm flow
     reply = _trim(reply)
+    # NARRATION SCRUB: plain chat with no tool run — never allow "let me check..."
+    if (not ops_used and hint is None and not CONN_HINTS.search(user_text)
+            and re.search(r"\blet me (check|pull|look|search|scan|grab|find)\b", reply, re.I)):
+        retry = messages + [
+            {"role": "assistant", "content": reply},
+            {"role": "system", "content": (
+                "Your reply announced a check you did not run. Re-answer with NO promises and "
+                "NO announcements of actions — just answer or ask one short question. Spoken "
+                "line only, nothing else.")},
+        ]
+        raw2 = await llm.chat(retry, CFG)
+        raw2 = re.sub(r"<<OPERATOR>>.*?(?:(?:<<)?/OPERATOR>>|$)", "", raw2, flags=re.S)
+        if raw2.strip():
+            reply = _trim(raw2.strip())
+            if re.search(r"\blet me (check|pull|look|search|scan|grab|find)\b", reply, re.I):
+                raw3 = await llm.chat(retry, CFG)  # second and final attempt
+                raw3 = re.sub(r"<<OPERATOR>>.*?(?:(?:<<)?/OPERATOR>>|$)", "", raw3, flags=re.S)
+                if (raw3.strip() and not re.search(
+                        r"\blet me (check|pull|look|search|scan|grab|find)\b", raw3, re.I)):
+                    reply = _trim(raw3.strip())
 
     HISTORY.append({"role": "user", "content": user_text})
     HISTORY.append({"role": "assistant", "content": reply})
@@ -227,5 +268,6 @@ async def kb():
 
 
 if __name__ == "__main__":
+    import os
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8790)
+    uvicorn.run(app, host=os.environ.get("ATLAS_HOST", "0.0.0.0"), port=8790)
