@@ -48,6 +48,9 @@ class SovereignConfig:
     eleven_api_key: str
     ops_webhook: str
     voice_id: str
+    operator_enabled: bool
+    operator_allow: str
+    operator_claude_bin: str
 
     @classmethod
     def resolve(cls, env_file: Path | None = None) -> "SovereignConfig":
@@ -73,4 +76,7 @@ class SovereignConfig:
             eleven_api_key=env.get("ELEVEN_API_KEY", ""),
             ops_webhook=env.get("ATLAS_OPS_WEBHOOK", "http://127.0.0.1:8787/alert"),
             voice_id=env.get("SOVEREIGN_VOICE_ID", "21m00Tcm4TlvDq8ikWAM"),
+            operator_enabled=env.get("ATLAS_OPERATOR", "1").strip().lower() in ("1", "true", "yes", "on"),
+            operator_allow=env.get("ATLAS_OPERATOR_ALLOW", ""),
+            operator_claude_bin=env.get("ATLAS_CLAUDE_BIN", str(Path.home() / ".local/bin/claude")),
         )
