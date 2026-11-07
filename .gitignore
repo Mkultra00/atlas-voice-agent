@@ -37,3 +37,4 @@ ops_log.jsonl
 .env.secrets
 .live-url
 .env.local
+sovereign/memory/

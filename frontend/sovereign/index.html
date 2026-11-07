@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Atlas — Sovereign</title>
+<style>
+  body{font-family:-apple-system,system-ui,sans-serif;background:#0b0e14;color:#e8e6e1;margin:0;display:flex;flex-direction:column;align-items:center;padding:2rem;min-height:90vh}
+  h1{font-size:1.2rem;margin-bottom:.2rem}
+  .sub{color:#8a8f98;font-size:.85rem;margin-bottom:2rem}
+  #mic{width:120px;height:120px;border-radius:50%;border:none;background:#e05252;color:#fff;font-size:.95rem;cursor:pointer;box-shadow:0 0 0 0 rgba(224,82,82,.5);transition:transform .15s}
+  #mic.rec{background:#8a2be2;transform:scale(1.08);animation:pulse 1.2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 18px rgba(224,82,82,0)}}
+  #status{margin:1.2rem 0;color:#8a8f98;font-size:.85rem;min-height:1.2em}
+  #out{max-width:560px;width:100%}
+  .msg{background:#131722;border-radius:10px;padding:.9rem 1.1rem;margin:.5rem 0;font-size:.95rem;line-height:1.45}
+  .you{border-left:3px solid #4a8fe7}.atlas{border-left:3px solid #e05252}
+  audio{width:100%;margin-top:.6rem}
+</style>
+</head>
+<body>
+<h1>Atlas</h1>
+<div class="sub">sovereign stack — your server, your voice, no middleman</div>
+<button id="mic">TAP TO&nbsp;TALK</button>
+<div id="status">idle</div>
+<div id="out"></div>
+<script>
+const mic=document.getElementById('mic'),status=document.getElementById('status'),out=document.getElementById('out');
+let media=null,rec=null,chunks=[],busy=false;
+mic.onclick=async()=>{
+  if(busy)return;
+  if(rec&&rec.state==='recording'){rec.stop();return;}
+  try{
+    if(!media)media=await navigator.mediaDevices.getUserMedia({audio:true});
+    chunks=[];
+    rec=new MediaRecorder(media);
+    rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=()=>send(chunks);
+    rec.start();mic.classList.add('rec');mic.textContent='TAP TO&nbsp;SEND';status.textContent='listening…';
+  }catch(e){status.textContent='mic blocked: '+e.message;}
+};
+async function send(chunks){
+  mic.classList.remove('rec');mic.innerHTML='TAP TO&nbsp;TALK';busy=true;
+  status.textContent='thinking…';
+  const fd=new FormData();
+  fd.append('audio',new Blob(chunks,{type:'audio/webm'}),'utterance.webm');
+  try{
+    const r=await fetch('/api/turn',{method:'POST',body:fd});
+    const j=await r.json();
+    if(j.error){status.textContent='error: '+j.error;}
+    else{
+      add('you',j.transcript||'(no transcript)');
+      add('atlas',j.reply);
+      status.textContent='';
+      if(j.audio_b64){
+        const a=new Audio('data:audio/mp3;base64,'+j.audio_b64);
+        a.play().catch(()=>{});
+      }
+    }
+  }catch(e){status.textContent='server error: '+e;}
+  busy=false;
+}
+function add(who,text){
+  const d=document.createElement('div');d.className='msg '+who;
+  d.textContent=(who==='you'?'You: ':'Atlas: ')+text;
+  out.prepend(d);
+}
+</script>
+</body>
+</html>
