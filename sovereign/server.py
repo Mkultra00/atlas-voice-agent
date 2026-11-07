@@ -22,7 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from sovereign.config import REPO_ROOT, SovereignConfig  # noqa: E402
-from sovereign import llm, memory, operator, retrieval, stt, tts  # noqa: E402
+from sovereign import llm, memory, operator, retrieval, stt, tts, websearch  # noqa: E402
 from sovereign.kb import KB  # noqa: E402
 
 try:
@@ -130,6 +130,23 @@ async def _resolve_operator(messages: list[dict[str, str]], reply_raw: str) -> t
     return (spoken or reply_raw).strip(), ("+".join(used) if used else None)
 
 
+def _greeting_reply(user_text: str, fallback: str | None) -> str | None:
+    """FIRST-TURN opener: Atlas answers first, identifies itself, and asks
+    where you are + how it can help. Emergency turns keep their answer and
+    only add the intro (speed first); later turns are untouched."""
+    if HISTORY:  # only the very first turn of a session opens like this
+        return None
+    if websearch.is_emergency(user_text):
+        head = "Atlas here — your travel-safety guide. "
+        if not websearch.place_in(user_text):
+            return head + "First — where exactly are you? " + (fallback or "")
+        return head + (fallback or "")
+    if len(user_text) <= 20 and re.search(r"\b(hi|hello|hey|atlas|yo)\b", user_text.lower()):
+        return ("Hi, I'm Atlas — your travel-safety guide. Where are you right now, "
+                "and how can I help?")
+    return "Atlas here — your travel-safety guide. " + (fallback or "")
+
+
 @app.get("/health")
 async def health():
     return {"ok": True, "llm": CFG.llm_model, "llm_base": CFG.llm_base_url,
@@ -163,6 +180,9 @@ async def turn(text: str | None = Form(None), audio: UploadFile | None = File(No
         return JSONResponse({"error": "no input"}, status_code=400)
 
     blocks = [b for b in (retrieval.context_block(user_text), memory.memory_block(user_text)) if b]
+    live = await websearch.emergency_block(user_text)
+    if live:
+        blocks.append(live)
     ops_desc = operator.describe() if CFG.operator_enabled else None
     messages = llm.build_messages_with_ops(HISTORY[-8:], blocks, ops_desc)
     hint = _suggest(user_text)
@@ -235,11 +255,16 @@ async def turn(text: str | None = Form(None), audio: UploadFile | None = File(No
                         r"\blet me (check|pull|look|search|scan|grab|find)\b", raw3, re.I)):
                     reply = _trim(raw3.strip())
 
+    # FIRST-TURN GREETING: Atlas answers first + identifies itself + asks
+    # where you are / how it can help (demo script); emergency stays fast.
+    reply = _greeting_reply(user_text, reply) or reply
+
     HISTORY.append({"role": "user", "content": user_text})
     HISTORY.append({"role": "assistant", "content": reply})
     memory.remember(f"incident: {user_text}")
 
-    result: dict = {"transcript": transcript, "reply": reply, "operator": ops_used}
+    result: dict = {"transcript": transcript, "reply": reply, "operator": ops_used,
+                    "live": bool(live)}
     if CFG.eleven_api_key:
         try:
             audio_bytes = await tts.speak(reply, CFG)
