@@ -181,6 +181,9 @@ async def entrypoint(ctx: JobContext) -> None:
             # Decides when the caller has finished speaking, using both the words
             # and the audio (pitch, pauses). Much better than a fixed silence timer.
             turn_detection=inference.TurnDetector(),
+            # Barge-in stays live, but a noise blip must not kill playout:
+            # require ≥0.9s of speech or ≥2 recognized words to interrupt.
+            interruption={"min_duration": 0.9, "min_words": 2},
             # Start drafting a reply before the turn is confirmed. Cuts latency.
             preemptive_generation={"enabled": True},
         ),
